@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Presupuesto</title>
+    <link rel="stylesheet" href="C:\Users\Usuario\Desktop\presupuesto\static\css\styles.css">
+</head>
+<body>
+    <h1>Agregar Presupuesto</h1>
+    <form action="C:\Users\Usuario\Desktop\presupuesto\templates\agregar_presupuesto.html" method="POST">
+        <label for="proveedor_id">Proveedor:</label><br>
+        <select name="proveedor_id" required>
+            {% for proveedor in proveedores %}
+                <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="producto_id">Producto:</label><br>
+        <select name="producto_id" required>
+            {% for producto in productos %}
+                <option value="{{ producto.id }}">{{ producto.nombre }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="precio">Precio:</label><br>
+        <input type="number" name="precio" required><br>
+
+        <label for="fecha">Fecha:</label><br>
+        <input type="date" name="fecha" required><br>
+
+        <label for="centro_costo_id">Centro de Costos:</label><br>
+        <select name="centro_costo_id" required>
+            {% for centro in centros_costos %}
+                <option value="{{ centro.id }}">{{ centro.nombre }}</option>
+            {% endfor %}
+        </select><br>
+
+        <button type="submit">Agregar</button>
+    </form>
+</body>
+</html>

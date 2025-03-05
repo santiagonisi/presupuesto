@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listado de Presupuestos</title>
+    <link rel="stylesheet" href="C:\Users\Usuario\Desktop\presupuesto\static\css\styles.css">
+</head>
+<body>
+    <h1>Listado de Presupuestos</h1>
+    <nav>
+        <ul>
+            <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\index.html">Inicio</a></li>
+            <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\agregar_presupuesto.html">Agregar Presupuesto</a></li>
+        </ul>
+    </nav>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha del Presupuesto</th>
+                <th>Producto</th>
+                <th>Cotización</th>
+                <th>Proveedor</th>
+                <th>Centro de Costos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for presupuesto in presupuestos %}
+                <tr>
+                    <td>{{ presupuesto.fecha }}</td>
+                    <td>{{ presupuesto.producto }}</td>
+                    <td>{{ presupuesto.precio }}</td>
+                    <td>{{ presupuesto.proveedor }}</td>
+                    <td>{{ presupuesto.centro_costo }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
