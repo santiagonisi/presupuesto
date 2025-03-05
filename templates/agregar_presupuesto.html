@@ -8,20 +8,12 @@
 </head>
 <body>
     <h1>Agregar Presupuesto</h1>
-    <form action="C:\Users\Usuario\Desktop\presupuesto\templates\agregar_presupuesto.html" method="POST">
-        <label for="proveedor_id">Proveedor:</label><br>
-        <select name="proveedor_id" required>
-            {% for proveedor in proveedores %}
-                <option value="{{ proveedor.id }}">{{ proveedor.nombre }}</option>
-            {% endfor %}
-        </select><br>
+    <form action="{{ url_for('agregar_presupuesto') }}" method="POST">
+        <label for="proveedor_nombre">Nombre del Proveedor:</label><br>
+        <input type="text" name="proveedor_nombre" required><br>
 
-        <label for="producto_id">Producto:</label><br>
-        <select name="producto_id" required>
-            {% for producto in productos %}
-                <option value="{{ producto.id }}">{{ producto.nombre }}</option>
-            {% endfor %}
-        </select><br>
+        <label for="producto_nombre">Nombre del Producto:</label><br>
+        <input type="text" name="producto_nombre" required><br>
 
         <label for="precio">Precio:</label><br>
         <input type="number" name="precio" required><br>
@@ -31,11 +23,11 @@
 
         <label for="centro_costo_id">Centro de Costos:</label><br>
         <select name="centro_costo_id" required>
-            {% for centro in centros_costos %}
-                <option value="{{ centro.id }}">{{ centro.nombre }}</option>
-            {% endfor %}
+            <option value="sector_obra">Sector Obra</option>
+            <option value="sector_contable">Sector Contable</option>
+            <option value="sector_oficina_tecnica">Sector Oficina Técnica</option>
         </select><br>
-
+        <br>
         <button type="submit">Agregar</button>
     </form>
 </body>
