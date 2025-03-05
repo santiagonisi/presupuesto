@@ -117,6 +117,15 @@ def formulario():
     conn.close()
     return render_template('formulario.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
 
+@app.route('/proveedores')
+def proveedores():
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM proveedores')
+    proveedores = cursor.fetchall()
+    conn.close()
+    return render_template('proveedores.html', proveedores=proveedores)
+
 if __name__ == '__main__':
     crear_tablas()
     app.run(debug=True)
