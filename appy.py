@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 # Conectar a la base de datos
 def obtener_conexion():
-    conn = sqlite3.connect('empresa.db')
+    conn = sqlite3.connect('empresa.db', check_same_thread=False)
     conn.row_factory = sqlite3.Row  # Acceder a las filas por nombre de columna
     return conn
 
@@ -52,10 +52,10 @@ def crear_tablas():
         FOREIGN KEY (centro_costo_id) REFERENCES centros_costos(id)
     )
     ''')
-    conn.commit()
-    conn.close()
-
-crear_tablas()
+    try:
+        conn.commit()
+    finally:
+        conn.close()
 
 # Página principal
 @app.route('/')
@@ -63,37 +63,49 @@ def index():
     conn = obtener_conexion()
     cursor = conn.cursor()
     cursor.execute('''
-    SELECT pp.fecha, pr.nombre AS producto, pp.precio, p.nombre AS proveedor, cc.nombre AS centro_costo
-    FROM proveedores_productos pp
-    JOIN proveedores p ON pp.proveedor_id = p.id
-    JOIN productos pr ON pp.producto_id = pr.id
-    JOIN centros_costos cc ON pp.centro_costo_id = cc.id
+        SELECT 
+            pp.fecha, 
+            pr.nombre AS producto, 
+            pp.precio, 
+            p.nombre AS proveedor, 
+            cc.nombre AS centro_costo
+        FROM 
+            proveedores_productos pp
+        JOIN 
+            proveedores p ON pp.proveedor_id = p.id
+        JOIN 
+            productos pr ON pp.producto_id = pr.id
+        JOIN 
+            centros_costos cc ON pp.centro_costo_id = cc.id
     ''')
-    presupuestos = cursor.fetchall()
+    registros = cursor.fetchall()
     conn.close()
-    return render_template('index.html', presupuestos=presupuestos)
+    return render_template('index.html', registros=registros)
 
-# Agregar un presupuesto
-@app.route('/agregar_presupuesto', methods=['GET', 'POST'])
-def agregar_presupuesto():
-    if request.method == 'POST':
-        proveedor_id = request.form['proveedor_id']
-        producto_id = request.form['producto_id']
-        precio = request.form['precio']
+@app.route('/agregar', methods=['POST'])
+def agregar():
+    try:
+        proveedor_id = int(request.form['proveedor_id'])
+        producto_id = int(request.form['producto_id'])
+        precio = float(request.form['precio'])
         fecha = request.form['fecha']
-        centro_costo_id = request.form['centro_costo_id']
-        
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute('''
+        centro_costo_id = int(request.form['centro_costo_id'])
+    except (ValueError, KeyError):
+        return "Invalid input", 400
+    
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('''
         INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id)
         VALUES (?, ?, ?, ?, ?)
-        ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id))
-        conn.commit()
-        conn.close()
+    ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id))
+    conn.commit()
+    conn.close()
 
-        return redirect(url_for('index'))
-    
+    return redirect(url_for('index'))
+
+@app.route('/formulario')
+def formulario():
     conn = obtener_conexion()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM proveedores')
@@ -103,9 +115,8 @@ def agregar_presupuesto():
     cursor.execute('SELECT * FROM centros_costos')
     centros_costos = cursor.fetchall()
     conn.close()
-
-    return render_template('agregar_presupuesto.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
+    return render_template('formulario.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
 
 if __name__ == '__main__':
+    crear_tablas()
     app.run(debug=True)
-    
