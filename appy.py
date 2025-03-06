@@ -139,15 +139,6 @@ def agregar_presupuesto():
         conn.close()
         return render_template('agregar_presupuesto.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
 
-@app.route('/proveedores')
-def proveedores():
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM proveedores')
-    proveedores = cursor.fetchall()
-    conn.close()
-    return render_template('proveedores.html', proveedores=proveedores)
-
 @app.route('/agregar_proveedor', methods=['POST'])
 def agregar_proveedor():
     nombre = request.form['nombre']
@@ -167,6 +158,17 @@ def agregar_proveedor():
     conn.close()
 
     return redirect(url_for('proveedores'))
+
+@app.route('/proveedores')
+def proveedores():
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM proveedores')
+    proveedores = cursor.fetchall()
+    conn.close()
+    return render_template('proveedores.html', proveedores=proveedores)
+
+
 
 @app.route('/eliminar_presupuesto/<int:id>', methods=['POST'])
 def eliminar_presupuesto(id):
