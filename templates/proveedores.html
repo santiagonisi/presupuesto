@@ -11,10 +11,13 @@
         <ul>
             <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\index.html">Inicio</a></li>
             <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\agregar_presupuesto.html">Agregar Presupuesto</a></li>
+            <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\proveedores.html">Proveedores</a></li>
         </ul>
     </nav>
     <h1>Lista de Proveedores</h1>
-    <form action="C:\Users\Usuario\Desktop\presupuesto\templates\proveedores.html" method="POST">
+    
+    <!-- Formulario para agregar un nuevo proveedor -->
+    <form action="{{ url_for('agregar_proveedor') }}" method="POST">
         <label for="nombre">Nombre:</label><br>
         <input type="text" name="nombre" required><br>
         
@@ -35,6 +38,7 @@
         
         <button type="submit">Agregar Proveedor</button>
     </form>
+    
     <table>
         <thead>
             <tr>
@@ -43,6 +47,7 @@
                 <th>CUIT</th>
                 <th>Razón Social</th>
                 <th>Nombre</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
@@ -51,8 +56,13 @@
                     <td>{{ proveedor.ubicacion }}</td>
                     <td>{{ proveedor.rubro }}</td>
                     <td>{{ proveedor.cuit }}</td>
-                    <td>{{ proveedor.razon_social }}</td>
+                    <td>{{ proveedor.razonsocial }}</td>
                     <td>{{ proveedor.nombre }}</td>
+                    <td>
+                        <form action="{{ url_for('eliminar_proveedor', id=proveedor.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Eliminar</button>
+                        </form>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
