@@ -14,6 +14,27 @@
         </ul>
     </nav>
     <h1>Lista de Proveedores</h1>
+    <form action="{{ url_for('agregar_proveedor') }}" method="POST">
+        <label for="nombre">Nombre:</label><br>
+        <input type="text" name="nombre" required><br>
+        
+        <label for="razonsocial">Razón Social:</label><br>
+        <input type="text" name="razonsocial" required><br>
+        
+        <label for="contacto">Contacto:</label><br>
+        <input type="text" name="contacto" required><br>
+        
+        <label for="cuit">CUIT:</label><br>
+        <input type="text" name="cuit" required><br>
+        
+        <label for="rubro">Rubro:</label><br>
+        <input type="text" name="rubro" required><br>
+        
+        <label for="ubicacion">Ubicación:</label><br>
+        <input type="text" name="ubicacion" required><br>
+        
+        <button type="submit">Agregar Proveedor</button>
+    </form>
     <table>
         <thead>
             <tr>
