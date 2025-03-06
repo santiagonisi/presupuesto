@@ -15,6 +15,12 @@
             <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\proveedores.html">Proveedores</a></li>
         </ul>
     </nav>
+
+    <form method="GET" action="{{ url_for('index') }}">
+        <input type="text" name="q" placeholder="Buscar por proveedor o producto" value="Buscar por proveedor o producto">
+        <button type="submit">Buscar</button>
+    </form>
+
     <table>
         <thead>
             <tr>
