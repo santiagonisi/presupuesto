@@ -92,7 +92,8 @@ form button:hover {
     background-color: #555;
 }
 
-/* Media Queries for Responsive Design */
+/*Responsive*/
+
 @media (max-width: 768px) {
     nav ul {
         flex-direction: column;
