@@ -161,6 +161,26 @@ def proveedores():
     conn.close()
     return render_template('proveedores.html', proveedores=proveedores)
 
+@app.route('/agregar_proveedor', methods=['POST'])
+def agregar_proveedor():
+    nombre = request.form['nombre']
+    razonsocial = request.form['razonsocial']
+    contacto = request.form['contacto']
+    cuit = request.form['cuit']
+    rubro = request.form['rubro']
+    ubicacion = request.form['ubicacion']
+
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (nombre, razonsocial, contacto, cuit, rubro, ubicacion))
+    conn.commit()
+    conn.close()
+
+    return redirect(url_for('proveedores'))
+
 if __name__ == '__main__':
     crear_tablas()
     app.run(debug=True)
