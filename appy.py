@@ -78,9 +78,44 @@ def index():
         JOIN 
             centros_costos cc ON pp.centro_costo_id = cc.id
     ''')
-    registros = cursor.fetchall()
+    presupuestos = cursor.fetchall()
     conn.close()
-    return render_template('index.html', registros=registros)
+    return render_template('index.html', presupuestos=presupuestos)
+
+@app.route('/agregar_presupuesto', methods=['GET', 'POST'])
+def agregar_presupuesto():
+    if request.method == 'POST':
+        proveedor_nombre = request.form['proveedor_nombre']
+        producto_nombre = request.form['producto_nombre']
+        precio = request.form['precio']
+        fecha = request.form['fecha']
+        centro_costo_id = request.form['centro_costo_id']
+
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id)
+            VALUES (
+                (SELECT id FROM proveedores WHERE nombre = ?),
+                (SELECT id FROM productos WHERE nombre = ?),
+                ?, ?, ?
+            )
+        ''', (proveedor_nombre, producto_nombre, precio, fecha, centro_costo_id))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('index'))
+    else:
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM proveedores')
+        proveedores = cursor.fetchall()
+        cursor.execute('SELECT * FROM productos')
+        productos = cursor.fetchall()
+        cursor.execute('SELECT * FROM centros_costos')
+        centros_costos = cursor.fetchall()
+        conn.close()
+        return render_template('agregar_presupuesto.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
 
 @app.route('/agregar', methods=['POST'])
 def agregar():
