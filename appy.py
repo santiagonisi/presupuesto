@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
+import os
 
 app = Flask(__name__)
 
@@ -52,10 +53,8 @@ def crear_tablas():
         FOREIGN KEY (centro_costo_id) REFERENCES centros_costos(id)
     )
     ''')
-    try:
-        conn.commit()
-    finally:
-        conn.close()
+    conn.commit()
+    conn.close()
 
 # Página principal
 @app.route('/')
@@ -117,41 +116,6 @@ def agregar_presupuesto():
         conn.close()
         return render_template('agregar_presupuesto.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
 
-@app.route('/agregar', methods=['POST'])
-def agregar():
-    try:
-        proveedor_id = int(request.form['proveedor_id'])
-        producto_id = int(request.form['producto_id'])
-        precio = float(request.form['precio'])
-        fecha = request.form['fecha']
-        centro_costo_id = int(request.form['centro_costo_id'])
-    except (ValueError, KeyError):
-        return "Invalid input", 400
-    
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id))
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for('index'))
-
-@app.route('/formulario')
-def formulario():
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM proveedores')
-    proveedores = cursor.fetchall()
-    cursor.execute('SELECT * FROM productos')
-    productos = cursor.fetchall()
-    cursor.execute('SELECT * FROM centros_costos')
-    centros_costos = cursor.fetchall()
-    conn.close()
-    return render_template('formulario.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
-
 @app.route('/proveedores')
 def proveedores():
     conn = obtener_conexion()
@@ -183,4 +147,4 @@ def agregar_proveedor():
 
 if __name__ == '__main__':
     crear_tablas()
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
