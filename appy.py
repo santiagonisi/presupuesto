@@ -59,24 +59,47 @@ def crear_tablas():
 # Página principal
 @app.route('/')
 def index():
+    query = request.args.get('q', '')
     conn = obtener_conexion()
     cursor = conn.cursor()
-    cursor.execute('''
-        SELECT 
-            pp.fecha, 
-            pr.nombre AS producto, 
-            pp.precio, 
-            p.nombre AS proveedor, 
-            cc.nombre AS centro_costo
-        FROM 
-            proveedores_productos pp
-        JOIN 
-            proveedores p ON pp.proveedor_id = p.id
-        JOIN 
-            productos pr ON pp.producto_id = pr.id
-        JOIN 
-            centros_costos cc ON pp.centro_costo_id = cc.id
-    ''')
+    
+    if query:
+        cursor.execute('''
+            SELECT 
+                pp.fecha, 
+                pr.nombre AS producto, 
+                pp.precio, 
+                p.nombre AS proveedor, 
+                cc.nombre AS centro_costo
+            FROM 
+                proveedores_productos pp
+            JOIN 
+                proveedores p ON pp.proveedor_id = p.id
+            JOIN 
+                productos pr ON pp.producto_id = pr.id
+            JOIN 
+                centros_costos cc ON pp.centro_costo_id = cc.id
+            WHERE 
+                p.nombre LIKE ? OR pr.nombre LIKE ?
+        ''', ('%' + query + '%', '%' + query + '%'))
+    else:
+        cursor.execute('''
+            SELECT 
+                pp.fecha, 
+                pr.nombre AS producto, 
+                pp.precio, 
+                p.nombre AS proveedor, 
+                cc.nombre AS centro_costo
+            FROM 
+                proveedores_productos pp
+            JOIN 
+                proveedores p ON pp.proveedor_id = p.id
+            JOIN 
+                productos pr ON pp.producto_id = pr.id
+            JOIN 
+                centros_costos cc ON pp.centro_costo_id = cc.id
+        ''')
+    
     presupuestos = cursor.fetchall()
     conn.close()
     return render_template('index.html', presupuestos=presupuestos)
@@ -143,6 +166,24 @@ def agregar_proveedor():
     conn.commit()
     conn.close()
 
+    return redirect(url_for('proveedores'))
+
+@app.route('/eliminar_presupuesto/<int:id>', methods=['POST'])
+def eliminar_presupuesto(id):
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM proveedores_productos WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
+@app.route('/eliminar_proveedor/<int:id>', methods=['POST'])
+def eliminar_proveedor(id):
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM proveedores WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
     return redirect(url_for('proveedores'))
 
 if __name__ == '__main__':
