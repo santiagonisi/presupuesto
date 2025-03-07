@@ -4,19 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proveedores</title>
-    <link rel="stylesheet" href="C:\Users\Usuario\Desktop\presupuesto\static\css\styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-   
     <h1>Lista de Proveedores</h1>
-     <nav>
+    <nav>
         <ul>
-            <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\index.html">Inicio</a></li>
-            <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\agregar_presupuesto.html">Agregar Presupuesto</a></li>
-            <li><a href="C:\Users\Usuario\Desktop\presupuesto\templates\proveedores.html">Proveedores</a></li>
+            <li><a href="{{ url_for('index') }}">Inicio</a></li>
+            <li><a href="{{ url_for('agregar_presupuesto') }}">Agregar Presupuesto</a></li>
+            <li><a href="{{ url_for('proveedores') }}">Proveedores</a></li>
         </ul>
     </nav>
-    <form action="C:\Users\Usuario\Desktop\presupuesto\templates\proveedores.html" method="POST">
+    <form action="{{ url_for('agregar_proveedor') }}" method="POST">
         <label for="nombre">Nombre:</label><br>
         <input type="text" name="nombre" required><br>
         

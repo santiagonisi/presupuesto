@@ -113,18 +113,22 @@ def agregar_presupuesto():
         fecha = request.form['fecha']
         centro_costo_id = request.form['centro_costo_id']
 
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id)
-            VALUES (
-                (SELECT id FROM proveedores WHERE nombre = ?),
-                (SELECT id FROM productos WHERE nombre = ?),
-                ?, ?, ?
-            )
-        ''', (proveedor_nombre, producto_nombre, precio, fecha, centro_costo_id))
-        conn.commit()
-        conn.close()
+        try:
+            conn = obtener_conexion()
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id)
+                VALUES (
+                    (SELECT id FROM proveedores WHERE nombre = ?),
+                    (SELECT id FROM productos WHERE nombre = ?),
+                    ?, ?, ?
+                )
+            ''', (proveedor_nombre, producto_nombre, precio, fecha, centro_costo_id))
+            conn.commit()
+        except sqlite3.Error as e:
+            print(f"Error al insertar presupuesto: {e}")
+        finally:
+            conn.close()
 
         return redirect(url_for('index'))
     else:
@@ -148,14 +152,18 @@ def agregar_proveedor():
     rubro = request.form['rubro']
     ubicacion = request.form['ubicacion']
 
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (nombre, razonsocial, contacto, cuit, rubro, ubicacion))
-    conn.commit()
-    conn.close()
+    try:
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (nombre, razonsocial, contacto, cuit, rubro, ubicacion))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error al insertar proveedor: {e}")
+    finally:
+        conn.close()
 
     return redirect(url_for('proveedores'))
 
@@ -168,28 +176,33 @@ def proveedores():
     conn.close()
     return render_template('proveedores.html', proveedores=proveedores)
 
-
-
 @app.route('/eliminar_presupuesto/<int:id>', methods=['POST'])
 def eliminar_presupuesto(id):
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM proveedores_productos WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM proveedores_productos WHERE id = ?', (id,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error al eliminar presupuesto: {e}")
+    finally:
+        conn.close()
     return redirect(url_for('index'))
 
 @app.route('/eliminar_proveedor/<int:id>', methods=['POST'])
 def eliminar_proveedor(id):
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM proveedores WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM proveedores WHERE id = ?', (id,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error al eliminar proveedor: {e}")
+    finally:
+        conn.close()
     return redirect(url_for('proveedores'))
 
 if __name__ == '__main__':
     crear_tablas()
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-    
     
