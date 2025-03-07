@@ -116,14 +116,34 @@ def agregar_presupuesto():
         try:
             conn = obtener_conexion()
             cursor = conn.cursor()
+
+            # Verificar si el proveedor existe
+            cursor.execute('SELECT id FROM proveedores WHERE nombre = ?', (proveedor_nombre,))
+            proveedor = cursor.fetchone()
+            if not proveedor:
+                # Insertar nuevo proveedor si no existe
+                cursor.execute('INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion) VALUES (?, ?, ?, ?, ?, ?)',
+                               (proveedor_nombre, '', '', '', '', ''))
+                proveedor_id = cursor.lastrowid
+            else:
+                proveedor_id = proveedor['id']
+
+            # Verificar si el producto existe
+            cursor.execute('SELECT id FROM productos WHERE nombre = ?', (producto_nombre,))
+            producto = cursor.fetchone()
+            if not producto:
+                # Insertar nuevo producto si no existe
+                cursor.execute('INSERT INTO productos (nombre, categoria, cantidad) VALUES (?, ?, ?)',
+                               (producto_nombre, '', 0))
+                producto_id = cursor.lastrowid
+            else:
+                producto_id = producto['id']
+
+            # Insertar el presupuesto
             cursor.execute('''
                 INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id)
-                VALUES (
-                    (SELECT id FROM proveedores WHERE nombre = ?),
-                    (SELECT id FROM productos WHERE nombre = ?),
-                    ?, ?, ?
-                )
-            ''', (proveedor_nombre, producto_nombre, precio, fecha, centro_costo_id))
+                VALUES (?, ?, ?, ?, ?)
+            ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id))
             conn.commit()
         except sqlite3.Error as e:
             print(f"Error al insertar presupuesto: {e}")
