@@ -17,7 +17,7 @@
     </nav>
 
     <form method="GET" action="{{ url_for('index') }}">
-        <input type="text" name="q" placeholder="Buscar por proveedor o producto" value="Buscar por proveedor o producto">
+        <input type="text" name="q" placeholder="Buscar por proveedor o producto">
         <button type="submit">Buscar</button>
     </form>
 
@@ -25,9 +25,9 @@
         <thead>
             <tr>
                 <th>Fecha del Presupuesto</th>
-                <th>Producto</th>
-                <th>Cotización</th>
                 <th>Proveedor</th>
+                <th>Producto</th>
+                <th>Cotizacion</th>
                 <th>Centro de Costos</th>
             </tr>
         </thead>
@@ -35,9 +35,9 @@
             {% for presupuesto in presupuestos %}
                 <tr>
                     <td>{{ presupuesto.fecha }}</td>
+                    <td>{{ presupuesto.proveedor }}</td>
                     <td>{{ presupuesto.producto }}</td>
                     <td>{{ presupuesto.precio }}</td>
-                    <td>{{ presupuesto.proveedor }}</td>
                     <td>{{ presupuesto.centro_costo }}</td>
                 </tr>
             {% endfor %}

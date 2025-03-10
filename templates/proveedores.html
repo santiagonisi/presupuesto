@@ -51,11 +51,11 @@
         <tbody>
             {% for proveedor in proveedores %}
                 <tr>
-                    <td>{{ proveedor.ubicacion }}</td>
-                    <td>{{ proveedor.rubro }}</td>
-                    <td>{{ proveedor.cuit }}</td>
-                    <td>{{ proveedor.razonsocial }}</td>
                     <td>{{ proveedor.nombre }}</td>
+                    <td>{{ proveedor.cuit }}</td>
+                    <td>{{ proveedor.rubro }}</td>
+                    <td>{{ proveedor.razonsocial }}</td>
+                    <td>{{ proveedor.ubicacion }}</td>
                     <td>
                         <form action="{{ url_for('eliminar_proveedor', id=proveedor.id) }}" method="POST" style="display:inline;">
                             <button type="submit">Eliminar</button>
