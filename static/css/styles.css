@@ -51,7 +51,8 @@ table {
 table th, table td {
     padding: 10px;
     border: 1px solid #ccc;
-    text-align: left;
+    text-align: center;
+    text-transform: capitalize;
 }
 
 table th {
