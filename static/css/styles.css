@@ -3,7 +3,7 @@ body {
     background-color: #fff;
     margin: 0;
     padding: 0;
-    background-image: url"{{ url_for('static', filename='images/Logo_Iarsa_1.png') }}";
+    background-image: url("{{ url_for('static', filename='images/Logo_Iarsa_1.png') }}");
     background-size: cover; /* Ajusta el tamaño de la imagen para cubrir toda la página */
     background-repeat: no-repeat; /* Evita que la imagen se repita */
     background-position: center; /* Centra la imagen en la página */
