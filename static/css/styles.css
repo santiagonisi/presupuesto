@@ -1,7 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: ffffff;
-    color: #ffffff;
+    background-color: #ffffff;
     margin: 0;
     padding: 0;
 }
@@ -89,6 +88,11 @@ form button {
     border-radius: 5px;
     cursor: pointer;
 }
+
+form button:hover {
+    background-color: #555;
+}
+
 
 /*Responsive*/
 
