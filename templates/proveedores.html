@@ -7,11 +7,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <h1>Lista de Proveedores</h1>
+    <header class="header">
+        <img src="{{ url_for('static', filename='images/Logo_Iarsa_1.png') }}" alt="Logo de la Empresa" class="logo">
+        <div class="header-content">
+            <h1>Proveedores</h1>
+        </div>
+    </header>
+    
     <nav>
         <ul>
             <li><a href="{{ url_for('index') }}">Inicio</a></li>
-            <li><a href="{{ url_for('agregar_presupuesto') }}">Agregar Presupuesto</a></li>
+            <li><a href="{{ url_for('agregar_presupuesto') }}">Presupuestos</a></li>
             <li><a href="{{ url_for('proveedores') }}">Proveedores</a></li>
         </ul>
     </nav>

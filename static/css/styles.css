@@ -5,8 +5,28 @@ body {
     padding: 0;
 }
 
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+}
+
+.logo {
+    max-width: 100px; /* Ajusta el tamaño del logo según sea necesario */
+    height: auto;
+    position: absolute;
+    left: 20px; /* Ajusta la distancia desde el borde izquierdo */
+}
+
+.header-content {
+    flex-grow: 1;
+    text-align: center;
+}
+
 nav {
-    background-color: #ffd769;
+    background-color: #f3c807;
     color: #000000;
     padding: 10px 0;
 }
