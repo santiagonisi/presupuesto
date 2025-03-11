@@ -224,6 +224,5 @@ def eliminar_proveedor(id):
 
 if __name__ == '__main__':
     crear_tablas()
-    agregar_datos_prueba()  # Agregar datos de prueba
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
     
