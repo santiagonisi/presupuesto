@@ -56,17 +56,6 @@ def crear_tablas():
     conn.commit()
     conn.close()
 
-# Agregar registros de prueba a la base de datos
-def agregar_datos_prueba():
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute("INSERT INTO centros_costos (nombre, departamento) VALUES ('Centro 1', 'Departamento 1')")
-    cursor.execute("INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion) VALUES ('Proveedor 1', 'Razon Social 1', 'Contacto 1', 'CUIT 1', 'Rubro 1', 'Ubicacion 1')")
-    cursor.execute("INSERT INTO productos (nombre, categoria, cantidad) VALUES ('Producto 1', 'Categoria 1', 10)")
-    cursor.execute("INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id) VALUES (1, 1, 100.0, '2025-03-11', 1)")
-    conn.commit()
-    conn.close()
-
 # Página principal
 @app.route('/')
 def index():
