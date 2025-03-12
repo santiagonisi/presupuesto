@@ -23,19 +23,19 @@
     </nav>
     <form action="{{ url_for('agregar_presupuesto') }}" method="POST">
         <label for="proveedor_nombre">Nombre del Proveedor:</label><br>
-        <input type="text" name="proveedor_nombre" required><br>
+        <input type="text" id="proveedor_nombre" name="proveedor_nombre" required><br>
 
         <label for="producto_nombre">Nombre del Producto:</label><br>
-        <input type="text" name="producto_nombre" required><br>
+        <input type="text" id="producto_nombre" name="producto_nombre" required><br>
 
         <label for="precio">Precio:</label><br>
-        <input type="number" name="precio" required><br>
+        <input type="number" id="precio" name="precio" required><br>
 
         <label for="fecha">Fecha:</label><br>
-        <input type="date" name="fecha" required><br>
+        <input type="date" id="fecha" name="fecha" required><br>
 
         <label for="centro_costo_id">Centro de Costos:</label><br>
-        <select name="centro_costo_id" required>
+        <select id="centro_costo_id" name="centro_costo_id" required>
             <option value="sector_obra">Sector Obra</option>
             <option value="sector_administracion">Sector Administracion</option>
             <option value="sector_oficina_tecnica">Sector Oficina Técnica</option>
