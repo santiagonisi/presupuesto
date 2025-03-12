@@ -14,10 +14,10 @@ body {
 }
 
 .logo {
-    max-width: 100px; /* Ajusta el tamaño del logo según sea necesario */
+    max-width: 100px; 
     height: auto;
     position: absolute;
-    left: 20px; /* Ajusta la distancia desde el borde izquierdo */
+    left: 20px; 
 }
 
 .header-content {
