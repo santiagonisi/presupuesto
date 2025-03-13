@@ -1,8 +1,12 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
-import os
 
 app = Flask(__name__)
+
+# Configuración de la carpeta de subida
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Conectar a la base de datos
 def obtener_conexion():
@@ -48,6 +52,7 @@ def crear_tablas():
         precio REAL NOT NULL,
         fecha TEXT,
         centro_costo_id INTEGER,
+        pdf_path TEXT,
         FOREIGN KEY (proveedor_id) REFERENCES proveedores(id),
         FOREIGN KEY (producto_id) REFERENCES productos(id),
         FOREIGN KEY (centro_costo_id) REFERENCES centros_costos(id)
@@ -59,47 +64,15 @@ def crear_tablas():
 # Página principal
 @app.route('/')
 def index():
-    query = request.args.get('q', '')
     conn = obtener_conexion()
     cursor = conn.cursor()
-    
-    if query:
-        cursor.execute('''
-            SELECT 
-                pp.fecha, 
-                pr.nombre AS producto, 
-                pp.precio, 
-                p.nombre AS proveedor, 
-                cc.nombre AS centro_costo
-            FROM 
-                proveedores_productos pp
-            JOIN 
-                proveedores p ON pp.proveedor_id = p.id
-            JOIN 
-                productos pr ON pp.producto_id = pr.id
-            JOIN 
-                centros_costos cc ON pp.centro_costo_id = cc.id
-            WHERE 
-                p.nombre LIKE ? OR pr.nombre LIKE ?
-        ''', ('%' + query + '%', '%' + query + '%'))
-    else:
-        cursor.execute('''
-            SELECT 
-                pp.fecha, 
-                pr.nombre AS producto, 
-                pp.precio, 
-                p.nombre AS proveedor, 
-                cc.nombre AS centro_costo
-            FROM 
-                proveedores_productos pp
-            JOIN 
-                proveedores p ON pp.proveedor_id = p.id
-            JOIN 
-                productos pr ON pp.producto_id = pr.id
-            JOIN 
-                centros_costos cc ON pp.centro_costo_id = cc.id
-        ''')
-    
+    cursor.execute('''
+    SELECT pp.fecha, p.nombre AS proveedor, pr.nombre AS producto, pp.precio, cc.nombre AS centro_costo, pp.pdf_path
+    FROM proveedores_productos pp
+    JOIN proveedores p ON pp.proveedor_id = p.id
+    JOIN productos pr ON pp.producto_id = pr.id
+    JOIN centros_costos cc ON pp.centro_costo_id = cc.id
+    ''')
     presupuestos = cursor.fetchall()
     conn.close()
     return render_template('index.html', presupuestos=presupuestos)
@@ -112,6 +85,12 @@ def agregar_presupuesto():
         precio = request.form['precio']
         fecha = request.form['fecha']
         centro_costo_id = request.form['centro_costo_id']
+        pdf = request.files['pdf']
+
+        # Guardar el PDF en el servidor
+        pdf_filename = pdf.filename
+        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename)
+        pdf.save(pdf_path)
 
         try:
             conn = obtener_conexion()
@@ -121,7 +100,6 @@ def agregar_presupuesto():
             cursor.execute('SELECT id FROM proveedores WHERE nombre = ?', (proveedor_nombre,))
             proveedor = cursor.fetchone()
             if not proveedor:
-                # Insertar nuevo proveedor si no existe
                 cursor.execute('INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion) VALUES (?, ?, ?, ?, ?, ?)',
                                (proveedor_nombre, '', '', '', '', ''))
                 proveedor_id = cursor.lastrowid
@@ -132,7 +110,6 @@ def agregar_presupuesto():
             cursor.execute('SELECT id FROM productos WHERE nombre = ?', (producto_nombre,))
             producto = cursor.fetchone()
             if not producto:
-                # Insertar nuevo producto si no existe
                 cursor.execute('INSERT INTO productos (nombre, categoria, cantidad) VALUES (?, ?, ?)',
                                (producto_nombre, '', 0))
                 producto_id = cursor.lastrowid
@@ -141,9 +118,9 @@ def agregar_presupuesto():
 
             # Insertar el presupuesto
             cursor.execute('''
-                INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id))
+                INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id, pdf_path)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id, pdf_path))
             conn.commit()
         except sqlite3.Error as e:
             print(f"Error al insertar presupuesto: {e}")
@@ -163,66 +140,6 @@ def agregar_presupuesto():
         conn.close()
         return render_template('agregar_presupuesto.html', proveedores=proveedores, productos=productos, centros_costos=centros_costos)
 
-@app.route('/agregar_proveedor', methods=['POST'])
-def agregar_proveedor():
-    nombre = request.form['nombre']
-    razonsocial = request.form['razonsocial']
-    contacto = request.form['contacto']
-    cuit = request.form['cuit']
-    rubro = request.form['rubro']
-    ubicacion = request.form['ubicacion']
-
-    try:
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (nombre, razonsocial, contacto, cuit, rubro, ubicacion))
-        conn.commit()
-    except sqlite3.Error as e:
-        print(f"Error al insertar proveedor: {e}")
-    finally:
-        conn.close()
-
-    return redirect(url_for('proveedores'))
-
-@app.route('/proveedores')
-def proveedores():
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM proveedores')
-    proveedores = cursor.fetchall()
-    conn.close()
-    return render_template('proveedores.html', proveedores=proveedores)
-
-@app.route('/eliminar_presupuesto/<int:id>', methods=['POST'])
-def eliminar_presupuesto(id):
-    try:
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM proveedores_productos WHERE id = ?', (id,))
-        conn.commit()
-    except sqlite3.Error as e:
-        print(f"Error al eliminar presupuesto: {e}")
-    finally:
-        conn.close()
-    return redirect(url_for('index'))
-
-@app.route('/eliminar_proveedor/<int:id>', methods=['POST'])
-def eliminar_proveedor(id):
-    try:
-        conn = obtener_conexion()
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM proveedores WHERE id = ?', (id,))
-        conn.commit()
-    except sqlite3.Error as e:
-        print(f"Error al eliminar proveedor: {e}")
-    finally:
-        conn.close()
-    return redirect(url_for('proveedores'))
-
 if __name__ == '__main__':
     crear_tablas()
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-    
+    app.run(debug=True)

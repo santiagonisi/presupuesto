@@ -36,6 +36,7 @@
                 <th>Producto</th>
                 <th>Cotizacion</th>
                 <th>Centro de Costos</th>
+                <th>PDF</th>
             </tr>
         </thead>
         <tbody>
@@ -46,6 +47,13 @@
                     <td>{{ presupuesto.producto }}</td>
                     <td>{{ presupuesto.precio }}</td>
                     <td>{{ presupuesto.centro_costo }}</td>
+                    <td>
+                        {% if presupuesto.pdf_path %}
+                            <a href="{{ url_for('static', filename=presupuesto.pdf_path) }}" target="_blank">Ver PDF</a>
+                        {% else %}
+                            No disponible
+                        {% endif %}
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>
