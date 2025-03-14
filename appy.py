@@ -44,8 +44,11 @@ def crear_tablas():
         cantidad INTEGER NOT NULL
     )
     ''')
+    # Eliminar la tabla proveedores_productos si existe
+    cursor.execute('DROP TABLE IF EXISTS proveedores_productos')
+    # Crear la tabla proveedores_productos con la nueva estructura
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS proveedores_productos (
+    CREATE TABLE proveedores_productos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         proveedor_id INTEGER NOT NULL,
         producto_id INTEGER NOT NULL,
@@ -76,6 +79,47 @@ def index():
     presupuestos = cursor.fetchall()
     conn.close()
     return render_template('index.html', presupuestos=presupuestos)
+
+@app.route('/proveedores')
+def proveedores():
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM proveedores')
+    proveedores = cursor.fetchall()
+    conn.close()
+    return render_template('proveedores.html', proveedores=proveedores)
+
+@app.route('/agregar_proveedor', methods=['GET', 'POST'])
+def agregar_proveedor():
+    if request.method == 'POST':
+        # Lógica para agregar un proveedor
+        nombre = request.form['nombre']
+        razonsocial = request.form['razonsocial']
+        contacto = request.form['contacto']
+        cuit = request.form['cuit']
+        rubro = request.form['rubro']
+        ubicacion = request.form['ubicacion']
+
+        conn = obtener_conexion()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (nombre, razonsocial, contacto, cuit, rubro, ubicacion))
+        conn.commit()
+        conn.close()
+
+        return redirect(url_for('proveedores'))
+    return render_template('agregar_proveedor.html')
+
+@app.route('/eliminar_proveedor/<int:id>', methods=['POST'])
+def eliminar_proveedor(id):
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM proveedores WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('proveedores'))
 
 @app.route('/agregar_presupuesto', methods=['GET', 'POST'])
 def agregar_presupuesto():
