@@ -92,7 +92,7 @@ def proveedores():
 @app.route('/agregar_proveedor', methods=['GET', 'POST'])
 def agregar_proveedor():
     if request.method == 'POST':
-        # Lógica para agregar un proveedor
+        #agregar un proveedor
         nombre = request.form['nombre']
         razonsocial = request.form['razonsocial']
         contacto = request.form['contacto']
@@ -131,7 +131,7 @@ def agregar_presupuesto():
         centro_costo_id = request.form['centro_costo_id']
         pdf = request.files['pdf']
 
-        # Guardar el PDF en el servidor
+        #Guardar PDF 
         pdf_filename = pdf.filename
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename)
         pdf.save(pdf_path)
