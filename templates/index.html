@@ -41,21 +41,21 @@
         </thead>
         <tbody>
             {% for presupuesto in presupuestos %}
-                <tr>
-                    <td>{{ presupuesto.fecha }}</td>
-                    <td>{{ presupuesto.proveedor }}</td>
-                    <td>{{ presupuesto.producto }}</td>
-                    <td>{{ presupuesto.precio }}</td>
-                    <td>{{ presupuesto.centro_costo }}</td>
-                    <td>
-                        {% if presupuesto.pdf_path %}
-                            <a href="{{ url_for('static', filename=presupuesto.pdf_path) }}" target="_blank">Ver PDF</a>
-                        {% else %}
-                            No disponible
-                        {% endif %}
-                    </td>
-                </tr>
-            {% endfor %}
+    <tr>
+        <td>{{ presupuesto.fecha }}</td>
+        <td>{{ presupuesto.proveedor }}</td>
+        <td>{{ presupuesto.producto }}</td>
+        <td>{{ presupuesto.precio }}</td>
+        <td>{{ presupuesto.centro_costo }}</td>
+        <td>
+            {% if presupuesto.pdf_path %}
+                <a href="{{ url_for('static', filename=presupuesto.pdf_path) }}" target="_blank">Ver PDF</a>
+            {% else %}
+                No disponible
+            {% endif %}
+        </td>
+    </tr>
+{% endfor %}
         </tbody>
     </table>
 </body>

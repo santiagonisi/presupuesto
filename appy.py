@@ -69,6 +69,10 @@ def crear_tablas():
 def index():
     conn = obtener_conexion()
     cursor = conn.cursor()
+    cursor.execute('SELECT * FROM proveedores_productos')
+    presupuestos_debug = cursor.fetchall()
+    print("Presupuestos en la base de datos:", presupuestos_debug)  # Verificar en la terminal
+
     cursor.execute('''
     SELECT pp.fecha, p.nombre AS proveedor, pr.nombre AS producto, pp.precio, cc.nombre AS centro_costo, pp.pdf_path
     FROM proveedores_productos pp
@@ -77,6 +81,8 @@ def index():
     JOIN centros_costos cc ON pp.centro_costo_id = cc.id
     ''')
     presupuestos = cursor.fetchall()
+    print("Presupuestos en la consulta final:", presupuestos)  # Verificar datos recuperados
+
     conn.close()
     return render_template('index.html', presupuestos=presupuestos)
 
@@ -129,12 +135,14 @@ def agregar_presupuesto():
         precio = request.form['precio']
         fecha = request.form['fecha']
         centro_costo_id = request.form['centro_costo_id']
-        pdf = request.files['pdf']
-
-        #Guardar PDF 
-        pdf_filename = pdf.filename
-        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename)
-        pdf.save(pdf_path)
+        
+        # Manejo del PDF (Solo si se adjunta)
+        pdf = request.files.get('pdf')  # Usar .get evita errores si no se sube archivo
+        pdf_path = None
+        if pdf and pdf.filename:  # Verifica si realmente se adjuntó un archivo
+            pdf_filename = pdf.filename
+            pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename)
+            pdf.save(pdf_path)
 
         try:
             conn = obtener_conexion()
@@ -144,11 +152,9 @@ def agregar_presupuesto():
             cursor.execute('SELECT id FROM proveedores WHERE nombre = ?', (proveedor_nombre,))
             proveedor = cursor.fetchone()
             if not proveedor:
-                cursor.execute('INSERT INTO proveedores (nombre, razonsocial, contacto, cuit, rubro, ubicacion) VALUES (?, ?, ?, ?, ?, ?)',
-                               (proveedor_nombre, '', '', '', '', ''))
-                proveedor_id = cursor.lastrowid
-            else:
-                proveedor_id = proveedor['id']
+                return "Error: El proveedor no existe. Debe agregarlo primero en la sección de proveedores."
+
+            proveedor_id = proveedor['id']
 
             # Verificar si el producto existe
             cursor.execute('SELECT id FROM productos WHERE nombre = ?', (producto_nombre,))
@@ -166,12 +172,17 @@ def agregar_presupuesto():
                 VALUES (?, ?, ?, ?, ?, ?)
             ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id, pdf_path))
             conn.commit()
+
+            # Print para depuración: Verificar que los datos realmente se insertaron
+            print(f"Presupuesto insertado: Proveedor ID: {proveedor_id}, Producto ID: {producto_id}, Precio: {precio}, Fecha: {fecha}, Centro de Costo ID: {centro_costo_id}, PDF: {pdf_path}")
+
         except sqlite3.Error as e:
             print(f"Error al insertar presupuesto: {e}")
         finally:
             conn.close()
 
         return redirect(url_for('index'))
+    
     else:
         conn = obtener_conexion()
         cursor = conn.cursor()
