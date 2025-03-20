@@ -12,10 +12,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # Conectar a la base de datos
 def obtener_conexion():
     conn = sqlite3.connect('empresa.db', check_same_thread=False)
-    conn.row_factory = sqlite3.Row  # Permite acceder a las columnas por nombre
+    conn.row_factory = sqlite3.Row  
     return conn
 
-# Crear las tablas al iniciar la aplicación
+# Crear las tablas
 def crear_tablas():
     conn = obtener_conexion()
     cursor = conn.cursor()
@@ -141,31 +141,32 @@ def agregar_proveedor():
 
     return redirect(url_for('proveedores'))
 
+@app.route('/eliminar_proveedor/<int:id>', methods=['POST'])
+def eliminar_proveedor(id):
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM proveedores WHERE id = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('proveedores'))
+
 # Agregar presupuesto
 @app.route('/agregar_presupuesto', methods=['GET', 'POST'])
 def agregar_presupuesto():
+    conn = obtener_conexion()
+    cursor = conn.cursor()
+
     if request.method == 'GET':
-        return render_template('agregar_presupuesto.html')  # Crea esta plantilla para el formulario
+        cursor.execute('SELECT * FROM centros_costos')
+        centros_costos = cursor.fetchall()
+        conn.close()
+        return render_template('agregar_presupuesto.html', centros_costos=centros_costos)
 
     proveedor_nombre = request.form.get('proveedor_nombre')
     producto_nombre = request.form.get('producto_nombre')
     precio = request.form.get('precio')
     fecha = request.form.get('fecha')
-    centro_costo_nombre = request.form.get('centro_costo_nombre')
-
-    if not proveedor_nombre or not producto_nombre or not precio or not fecha or not centro_costo_nombre:
-        return "Error: Todos los campos son obligatorios.", 400
-
-    try:
-        precio = float(precio)
-    except ValueError:
-        return "Error: El precio debe ser un número.", 400
-
-    from datetime import datetime
-    try:
-        fecha = datetime.strptime(fecha, '%Y-%m-%d')
-    except ValueError:
-        return "Error: La fecha debe tener el formato AAAA-MM-DD.", 400
+    centro_costo_id = request.form.get('centro_costo_id')  # ✅ Recibir el ID correcto
 
     pdf = request.files.get('pdf')
     pdf_path = None
@@ -175,15 +176,14 @@ def agregar_presupuesto():
         pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename)
         pdf.save(pdf_path)
 
-    conn = obtener_conexion()
-    cursor = conn.cursor()
 
+
+    # Validar existencia de proveedor y producto
     cursor.execute('SELECT id FROM proveedores WHERE nombre = ?', (proveedor_nombre,))
     proveedor = cursor.fetchone()
     if not proveedor:
         conn.close()
-        return "Error: El proveedor no existe. Por favor, agrégalo primero.", 400
-
+        return "Error: El proveedor no existe.", 400
     proveedor_id = proveedor['id']
 
     cursor.execute('SELECT id FROM productos WHERE nombre = ?', (producto_nombre,))
@@ -195,33 +195,16 @@ def agregar_presupuesto():
     else:
         producto_id = producto['id']
 
-    cursor.execute('SELECT id FROM centros_costos WHERE nombre = ?', (centro_costo_nombre,))
-    centro_costo = cursor.fetchone()
-    if not centro_costo:
-        conn.close()
-        return "Error: El centro de costos no existe.", 400
-
-    centro_costo_id = centro_costo['id']
-
+    # Insertar presupuesto
     cursor.execute('''
         INSERT INTO proveedores_productos (proveedor_id, producto_id, precio, fecha, centro_costo_id, pdf_path)
         VALUES (?, ?, ?, ?, ?, ?)
-    ''', (proveedor_id, producto_id, precio, fecha.strftime('%Y-%m-%d'), centro_costo_id, pdf_path))
+    ''', (proveedor_id, producto_id, precio, fecha, centro_costo_id, pdf_path))
 
     conn.commit()
     conn.close()
 
     return redirect(url_for('index'))
-
-# Eliminar proveedor
-@app.route('/eliminar_proveedor/<int:id>', methods=['POST'])
-def eliminar_proveedor(id):
-    conn = obtener_conexion()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM proveedores WHERE id = ?', (id,))
-    conn.commit()
-    conn.close()
-    return redirect(url_for('proveedores'))
 
 # Ejecutar la aplicación
 if __name__ == '__main__':
